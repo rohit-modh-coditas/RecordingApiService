@@ -13,14 +13,7 @@ namespace Core.Services
         public DateTime Now => DateTime.Now;
 
         // public DateTime StartTime => new();
-
-        DateTime IDateTime.StartTime
-        {
-            get => new(); set
-            {
-                
-            }
-        }
+        public DateTime StartTime { get; set; }   
 
         public DateTime CreateDate { get; set; }
         public TimeZoneInfo LocalTimeZone { get; set; } = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
