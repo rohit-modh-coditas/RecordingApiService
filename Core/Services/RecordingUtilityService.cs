@@ -21,9 +21,9 @@ namespace Core.Services
             //CallableNumbers = new List<string>();
             if (!string.IsNullOrEmpty(callNumber))
             {
+                callNumber = callNumber.Replace("+", "").Trim();
                 if (callNumber.FirstOrDefault() != '1')
                 {
-                    callNumber = callNumber.Replace("+", "").Trim();
                     CallableNumbers.Add(string.Concat("011", callNumber));//011 is the phone exit code 
                     CallableNumbers.Add(string.Concat("1", callNumber));//1 is the local code
                     /*a number cud belong to US 48 states or Canada. These numbers are dailed with a prefix of 1 and 
@@ -48,14 +48,15 @@ namespace Core.Services
             try
             {
 
-
                 dateTime.StartTime = TimeZoneInfo.ConvertTimeFromUtc(dateTime.StartTime, dateTime.LocalTimeZone);
                 dateTime.StartTime = dateTime.StartTime.AddSeconds(TimeShift);
 
-                dateTime.StartTime = dateTime.StartTime.AddSeconds(-TimeBuffer);
-                dateTime.StartTime = dateTime.StartTime.AddSeconds(TimeBuffer);
-                string queryStartTime = String.Format("{0:yyyy-MM-dd HH:mm:ss}", dateTime.StartTime);
-                string queryStartTimeTo = String.Format("{0:yyyy-MM-dd HH:mm:ss}", dateTime.StartTime);
+                DateTime startTime = dateTime.StartTime.AddSeconds(-TimeBuffer);
+                DateTime startTimeTo = dateTime.StartTime.AddSeconds(TimeBuffer);
+                //dateTime.StartTime = dateTime.StartTime.AddSeconds(-TimeBuffer);
+                //dateTime.StartTime = dateTime.StartTime.AddSeconds(TimeBuffer);
+                string queryStartTime = String.Format("{0:yyyy-MM-dd HH:mm:ss}", startTime);
+                string queryStartTimeTo = String.Format("{0:yyyy-MM-dd HH:mm:ss}", startTimeTo);
                 List<string> callableNumbers = new List<string>();
                 called1.getCallableNumber(ref callableNumbers);
                 called2.getCallableNumber(ref callableNumbers);
@@ -100,10 +101,10 @@ namespace Core.Services
                                     return true;
                                 }
                             }
-                            else
-                            {
-                                throw new RecordingFailureException("Json Failure: " + json.error != null ? json.error.ToString() : json.ToString());
-                            }
+                            //else
+                            //{
+                            //    throw new RecordingFailureException("Json Failure: " + json.error != null ? json.error.ToString() : json.ToString());
+                            //}
                         }
                     }
                 }
@@ -114,6 +115,17 @@ namespace Core.Services
             }
 
             return true;
+        }
+
+        public void MoveRecordingToGCS(string recordingBasePath, IConfiguration _config)
+        {
+            recordingBasePath += "\\";
+            string datePath = recordingBasePath.Split(new string[] { _config.GetValue<string>("RecordingsBasePath") }, StringSplitOptions.None)[1].Replace("\\", "/");
+            string key = _config.GetValue<string>("S3RecordingBaseKey") + datePath;
+            string GoogleAuthFilePath = _config.GetValue<string>("GoogleAuthFilePath");
+            string _bucketName = _config.GetValue<string>("GCSBucketName");
+
+            GoogleCloudStorageService.UploadAllRecording(key,GoogleAuthFilePath, _bucketName, recordingBasePath);
         }
     }
 }

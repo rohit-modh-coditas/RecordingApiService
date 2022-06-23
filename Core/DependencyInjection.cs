@@ -26,7 +26,7 @@ namespace Core
             {
                 services.AddDbContext<_10X_StagingContext>(options =>
                  options.UseSqlServer(
-                     configuration.GetConnectionString("DefaultConnection"),
+                     configuration.GetConnectionString("10xStaging"),
                      b => b.MigrationsAssembly(typeof(_10X_StagingContext).Assembly.FullName)));
 
                 services.AddDbContext<StoreDBContext>(options =>

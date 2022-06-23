@@ -199,10 +199,12 @@ namespace Application.Recordings.Queries.GetRecordings
                 int timeShift = Int32.Parse(time[1].Value);
                
                 bool tempResult = _utilityService.FetchCdrRecording(_dateTime, _config, called1, called2, called3, request.LeadTransitId, RecordSavePath, timeBuffer, timeShift);
-                //if (tempResult)
-                //{
-
-                //}
+                if (tempResult)
+                {
+                    //Execute python script to convert wav to mp3
+                    
+                    _utilityService.MoveRecordingToGCS(RecordingBasePath, _config);
+                }
 
 
 

@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace Application.Common.Exceptions
 {
-   public class RecordingFailureException:Exception
+    public class RecordingFailureException : Exception
 
     {
-        public RecordingFailureException(string message):base(message)
+        public RecordingFailureException(string message) : base(message)
         {
+           
+    }
 
-        }
     }
 }
