@@ -36,7 +36,7 @@ namespace Application.Common.Behaviours
 
                 // TODO: Add User Details
 
-                _logger.LogInformation("CAS Call Recording Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@Request}", name, _timer.ElapsedMilliseconds, request);
+                _logger.LogWarning("CAS Call Recording Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@Request}", name, _timer.ElapsedMilliseconds, request);
             //}
 
             return response;
