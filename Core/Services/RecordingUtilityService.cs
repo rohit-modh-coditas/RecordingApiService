@@ -53,13 +53,16 @@ namespace Core.Services
                 using (var retMs = new MemoryStream())
                 using (var ms = new MemoryStream(wavFile))
                 using (var rdr = new WaveFileReader(ms))
-                using (var wtr = new LameMP3FileWriter(retMs, rdr.WaveFormat, 128))
                 {
-                    rdr.CopyTo(wtr);
-                    var byteArr = retMs.ToArray();
-                    localPath = localPath.Replace(".wav", ".mp3");
-                    File.WriteAllBytes(localPath, byteArr);
+                    using (var wtr = new LameMP3FileWriter(retMs, rdr.WaveFormat, 128))
+                    {
+                        rdr.CopyTo(wtr);
+                        var byteArr = retMs.ToArray();
+                        localPath = localPath.Replace(".wav", ".mp3");
+                        File.WriteAllBytes(localPath, byteArr);
+                    }
                 }
+
             }
             catch (Exception e)
             {
@@ -148,7 +151,7 @@ namespace Core.Services
             string GoogleAuthFilePath = _config.GetValue<string>("GoogleAuthFilePath");
             string _bucketName = _config.GetValue<string>("GCSBucketName");
 
-            GoogleCloudStorageService.UploadAllRecording(key,GoogleAuthFilePath, _bucketName, recordingBasePath);
+            GoogleCloudStorageService.UploadAllRecording(key, GoogleAuthFilePath, _bucketName, recordingBasePath);
         }
     }
 }

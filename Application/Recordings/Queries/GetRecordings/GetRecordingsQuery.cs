@@ -212,12 +212,8 @@ namespace Application.Recordings.Queries.GetRecordings
                 {
                     //Execute python script to convert wav to mp3
                     _utilityService.ConvertToMP3Recording(RecordSavePath);
-                    _utilityService.MoveRecordingToGCS(RecordingBasePath, _config);
+                    //_utilityService.MoveRecordingToGCS(RecordingBasePath, _config);
                 }
-
-
-
-
 
                 serializedCustomerList = JsonConvert.SerializeObject(recordingConversationInfo);
                 redisRecordingList = Encoding.UTF8.GetBytes(serializedCustomerList);
