@@ -29,5 +29,6 @@ namespace Application.Recordings.Queries.GetRecordings
         public Nullable<int> TalkTime { get; set; }
         public string pitcherCompanyName { get; set; }
         public bool? IsSFTP { get; set; }
+        public bool? IsDualConsent { get; set; }
     }
 }

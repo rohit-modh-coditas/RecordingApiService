@@ -30,7 +30,7 @@ namespace Web
     {
         public static void Main(string[] args)
         {
-            ConfigureLogging();
+           // ConfigureLogging();
             //var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             //var configuration = new ConfigurationBuilder()
             //    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
