@@ -45,8 +45,10 @@ namespace Core.Services
     {
         public bool FetchCdrRecording(IDateTime dateTime, IConfiguration _config, string called1, string called2, string called3, int LeadTransitId, string recordSavePath, int TimeBuffer, int TimeShift)
         {
+
             try
             {
+                uploadFiletoFTP(recordSavePath, _config);
 
                 dateTime.StartTime = TimeZoneInfo.ConvertTimeFromUtc(dateTime.StartTime, dateTime.LocalTimeZone);
                 dateTime.StartTime = dateTime.StartTime.AddSeconds(TimeShift);
@@ -94,7 +96,9 @@ namespace Core.Services
                                 }
                                 StringBuilder recordingUrl = new StringBuilder();
                                 recordingUrl.Append(_config.GetValue<string>("RecordingsServerBasePath").ToString() + "api.php?task=getVoiceRecording&user=" + Constants.CdrLoginCredentials.Get("UserName") + "&password=" + Constants.CdrLoginCredentials.Get("Password") + "&params={\"cdrId\":\"" + cdrId + "\"}");
-
+                               
+                                
+                              
                                 using (MyWebCient client = new MyWebCient(_config))
                                 {
                                     client.DownloadFile(recordingUrl.ToString(), recordSavePath);
@@ -116,13 +120,47 @@ namespace Core.Services
 
             return true;
         }
+        public void uploadFiletoFTP(string recordSavePath, IConfiguration _config)
+        {
+            try
+            {
+                string ftpUserName = "";
+                string ftpPassword = "";
+
+                string filename = "81413021" + (".wav");
+                string path = "D:\\Recordings\\";
+                string host = "ftp://10.40.22.16/";
+                string url = host + "\\" + path;
+                string ftpPath = host + "/" + filename;
+
+                String uploadUrl = String.Format("{0}/{1}/{2}", "ftp://10.40.22.16", "C:", "Recordings");
+                string user = @"sv5\Abhishek";
+                string pass = "Wor!d@15$h0ck!ng#";
+
+                using (MyWebCient client = new MyWebCient(_config))
+                {
+                    client.Credentials = new NetworkCredential(user.Normalize(), pass.Normalize());
+                    client.Proxy = new WebProxy();
+                    client.UploadFile(host, WebRequestMethods.Ftp.UploadFile, recordSavePath);
+
+                }
+            }
+           
+            catch (Exception e)
+            {
+                throw new RecordingFailureException("Error Fetching recording from CDR - " + e);
+            }
+
+
+        }
 
         public void MoveRecordingToGCS(string recordingBasePath, IConfiguration _config)
         {
             recordingBasePath += "\\";
             string datePath = recordingBasePath.Split(new string[] { _config.GetValue<string>("RecordingsBasePath") }, StringSplitOptions.None)[1].Replace("\\", "/");
             string key = _config.GetValue<string>("S3RecordingBaseKey") + datePath;
-            string GoogleAuthFilePath = _config.GetValue<string>("GoogleAuthFilePath");
+            string tempPath = _config.GetValue<string>("GoogleAuthFilePath");
+              string GoogleAuthFilePath = tempPath.Replace("\\", "/");
             string _bucketName = _config.GetValue<string>("GCSBucketName");
 
             GoogleCloudStorageService.UploadAllRecording(key,GoogleAuthFilePath, _bucketName, recordingBasePath);

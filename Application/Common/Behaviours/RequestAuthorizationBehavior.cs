@@ -31,7 +31,7 @@ namespace Application.Common.Behaviours
             foreach (var authorizer in _authorizers)
             {
                 var result = await authorizer.AuthorizeAsync(request, cancellationToken);
-
+                //var result = await authorizer.AuthorizeAsync();
                 if (!result.IsAuthorized)
                     throw new UnAuthorizedAccessException(result.FailureMessage);
                 else { Authenticated = true; }
