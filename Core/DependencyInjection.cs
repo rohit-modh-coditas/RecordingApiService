@@ -33,17 +33,17 @@ namespace Core
                     options.UseSqlServer(
                         configuration.GetConnectionString("DefaultConnection"),
                         b => b.MigrationsAssembly(typeof(StoreDBContext).Assembly.FullName)));
-             
+
             }
             //For In-Memory Caching
             //services.AddMemoryCache();
             //For Redis Caching
-           
+
             //services.AddScoped<IStoreDBContext>(provider => provider.GetRequiredService<StoreDBContext>());
             services.AddScoped<I10XStagingDbContext>(provider => provider.GetRequiredService<_10X_StagingContext>());
 
             services.AddScoped<IStoreDbContext>(provider => provider.GetRequiredService<StoreDBContext>());
-          
+
             services.AddScoped<IDomainEventService, DomainEventService>();
 
             //services
@@ -57,8 +57,10 @@ namespace Core
             services.AddTransient<IDateTime, DateTimeService>();
             services.AddTransient<IRecordingUtilityService, RecordingUtilityService>();
             services.AddTransient<IAppSettings, AppSettingService>();
-           // services.AddTransient<IIdentityService, IdentityService>();
+            services.AddTransient<ICommonFunctions, CommonFunctions>();
+            // services.AddTransient<IIdentityService, IdentityService>();
             services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<IEmailService, EmailService>();
 
             services.AddAuthentication(options =>
             {
@@ -79,7 +81,7 @@ namespace Core
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
                     };
                 });
-                  
+
 
             return services;
         }

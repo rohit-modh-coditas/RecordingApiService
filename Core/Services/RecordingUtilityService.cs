@@ -10,7 +10,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
+using NAudio.Lame;
+using NAudio.Wave;
+using System.IO;
 
 namespace Core.Services
 {
@@ -43,11 +45,35 @@ namespace Core.Services
     }
     public class RecordingUtilityService : IRecordingUtilityService
     {
+        public void ConvertToMP3Recording(string localPath)
+        {
+            try
+            {
+                var wavFile = File.ReadAllBytes(localPath);
+                using (var retMs = new MemoryStream())
+                using (var ms = new MemoryStream(wavFile))
+                using (var rdr = new WaveFileReader(ms))
+                {
+                    using (var wtr = new LameMP3FileWriter(retMs, rdr.WaveFormat, 128))
+                    {
+                        rdr.CopyTo(wtr);
+                        var byteArr = retMs.ToArray();
+                        localPath = localPath.Replace(".wav", ".mp3");
+                        File.WriteAllBytes(localPath, byteArr);
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                throw new RecordingFailureException("Conversion failed for .wav to .mp3 files - " + e);
+            }
+        }
+
         public bool FetchCdrRecording(IDateTime dateTime, IConfiguration _config, string called1, string called2, string called3, int LeadTransitId, string recordSavePath, int TimeBuffer, int TimeShift)
         {
             try
             {
-
                 dateTime.StartTime = TimeZoneInfo.ConvertTimeFromUtc(dateTime.StartTime, dateTime.LocalTimeZone);
                 dateTime.StartTime = dateTime.StartTime.AddSeconds(TimeShift);
 
@@ -109,7 +135,7 @@ namespace Core.Services
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new RecordingFailureException("Error Fetching recording from CDR - " + e);
             }
@@ -125,7 +151,7 @@ namespace Core.Services
             string GoogleAuthFilePath = _config.GetValue<string>("GoogleAuthFilePath");
             string _bucketName = _config.GetValue<string>("GCSBucketName");
 
-            GoogleCloudStorageService.UploadAllRecording(key,GoogleAuthFilePath, _bucketName, recordingBasePath);
+            GoogleCloudStorageService.UploadAllRecording(key, GoogleAuthFilePath, _bucketName, recordingBasePath);
         }
     }
 }
