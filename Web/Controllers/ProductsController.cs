@@ -15,6 +15,7 @@ namespace Web.Controllers
     [ApiController]
     public class ProductsController : ApiControllerBase
     {
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<ProductVm>> Get()
         {

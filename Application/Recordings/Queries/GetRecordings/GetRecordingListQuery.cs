@@ -3,6 +3,7 @@ using Application.Common.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
@@ -17,7 +18,7 @@ namespace Application.Recordings.Queries.GetRecordings
 {
     public class GetRecordingListQuery : IRequest<RecordingListVm>
     {
-
+        public HttpContext context { get; set; }
     }
     public class GetRecordingListQueryHandler : IRequestHandler<GetRecordingListQuery, RecordingListVm>
     {

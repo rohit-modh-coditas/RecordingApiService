@@ -29,7 +29,7 @@ namespace Application.ApplicationUser.Queries.GetToken
         public  Task<AuthorizationResult> Handle(UserAuthQuery request, CancellationToken cancellationToken)
         {
             //
-            string token =  _tokenService.CreateJwtSecurityToken(request);
+            string token =  _tokenService.CreateJwtSecurityToken(request.Email);//request is now changed to string token
             return Task.Run(()=>AuthorizationResult.Succeed(token));
         }
     }

@@ -10,6 +10,6 @@ namespace Application.Common.Interfaces
     public interface ITokenService
     {
         bool ValidateToken();
-        string CreateJwtSecurityToken(UserAuthQuery userAuth);
+        string CreateJwtSecurityToken(string  AuthToken);
     }
 }

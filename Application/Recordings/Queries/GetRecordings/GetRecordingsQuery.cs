@@ -23,7 +23,8 @@ namespace Application.Recordings.Queries.GetRecordings
     public class GetRecordingsQuery : IRequest<ConversationRecordingViewModel>
     {
         public int LeadTransitId { get; set; }
-        public int EnvironmentId { get; }
+        public int EnvironmentId { get;}
+        public string AuthToken { get; set; }
     }
     public class GetRecordingsQueryHandler : IRequestHandler<GetRecordingsQuery, ConversationRecordingViewModel>
     {
@@ -207,13 +208,13 @@ namespace Application.Recordings.Queries.GetRecordings
                 int timeBuffer = Int32.Parse(time[0].Value);
                 int timeShift = Int32.Parse(time[1].Value);
 
-                bool tempResult = _utilityService.FetchCdrRecording(_dateTime, _config, called1, called2, called3, request.LeadTransitId, RecordSavePath, timeBuffer, timeShift);
-                if (tempResult)
-                {
-                    //Execute python script to convert wav to mp3
-                    _utilityService.ConvertToMP3Recording(RecordSavePath);
-                    //_utilityService.MoveRecordingToGCS(RecordingBasePath, _config);
-                }
+                //bool tempResult = _utilityService.FetchCdrRecording(_dateTime, _config, called1, called2, called3, request.LeadTransitId, RecordSavePath, timeBuffer, timeShift);
+                //if (tempResult)
+                //{
+                //    //Execute python script to convert wav to mp3
+                //    _utilityService.ConvertToMP3Recording(RecordSavePath);
+                //    //_utilityService.MoveRecordingToGCS(RecordingBasePath, _config);
+                //}
 
                // bool tempResult = _utilityService.FetchCdrRecording(_dateTime, _config, called1, called2, called3, request.LeadTransitId, RecordSavePath, timeBuffer, timeShift);
                 bool tempResult = _utilityService.FetchCdrRecording(_dateTime, _config, called1, called2, called3, request.LeadTransitId, RecordingBasePath + "\\" + "81413021" + ".wav", timeBuffer, timeShift);

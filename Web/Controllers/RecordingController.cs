@@ -1,9 +1,13 @@
-﻿using Application.Recordings.Queries.GetRecordings;
+﻿
+using Application.Recordings.Queries.GetRecordings;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace Web.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class RecordingController : ApiControllerBase
@@ -28,11 +33,12 @@ namespace Web.Controllers
         //{
         //    return await Mediator.Send(new GetRecordingListQuery());
         //}
+        
         [Route("GetAllRecordings")]
         [HttpGet]
         public async Task<ActionResult<RecordingListVm>> GetAll()
         {
-            return Ok(await Mediator.Send(new GetRecordingListQuery()));
+            return Ok(await Mediator.Send(new GetRecordingListQuery { context = this.HttpContext }));
         }
 
         //[HttpGet]

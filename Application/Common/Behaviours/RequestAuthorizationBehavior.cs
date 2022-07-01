@@ -28,6 +28,7 @@ namespace Application.Common.Behaviours
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
             bool Authenticated = false;
+            
             foreach (var authorizer in _authorizers)
             {
                 var result = await authorizer.AuthorizeAsync(request, cancellationToken);
@@ -36,21 +37,19 @@ namespace Application.Common.Behaviours
                     throw new UnAuthorizedAccessException(result.FailureMessage);
                 else { Authenticated = true; }
             }
-            var response = next();
-            var ex = response.Exception;
-            if (ex == null)
-            {
 
-            }
-            if (Authenticated)
-            {
-                var userId = _currentUserService.UserId ?? string.Empty;
-                bool inRole = _currentUserService.ClaimsPrincipal.IsInRole("Admin");
-                if (!inRole)
-                {
-                    throw new UnAuthorizedAccessException("Restricted access..");
-                }
-            }
+            var response = next();
+            //var ex = response.Exception;
+           
+            //if (Authenticated)
+            //{
+            //    var userId = _currentUserService.UserId ?? string.Empty;
+            //    bool inRole = _currentUserService.ClaimsPrincipal.IsInRole("Admin");
+            //    if (!inRole)
+            //    {
+            //        throw new UnAuthorizedAccessException("Restricted access..");
+            //    }
+            //}
             return await response;
         }
     }

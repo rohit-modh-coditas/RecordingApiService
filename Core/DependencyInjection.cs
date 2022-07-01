@@ -61,6 +61,7 @@ namespace Core
             // services.AddTransient<IIdentityService, IdentityService>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IEmailService, EmailService>();
+            services.AddTransient<IGoogleCloudStorageService, GoogleCloudStorageService>();
 
             services.AddAuthentication(options =>
             {

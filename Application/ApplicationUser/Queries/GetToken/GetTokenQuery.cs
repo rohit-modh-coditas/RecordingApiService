@@ -40,7 +40,7 @@ namespace Application.ApplicationUser.Queries.GetToken
             return ServiceResult.Success(new LoginResponse
             {
               
-                Token = Task.Run(()=>_tokenService.CreateJwtSecurityToken(new UserAuthQuery { Email = request.Email})).Result
+                Token = Task.Run(()=>_tokenService.CreateJwtSecurityToken(request.Email)).Result
             });
         }
     }

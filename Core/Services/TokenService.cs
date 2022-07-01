@@ -39,13 +39,14 @@ namespace Core.Services
             }//  return AuthorizationResult.Succeed(Username, Role, Name);
                 return true;
         }
-        string ITokenService.CreateJwtSecurityToken(UserAuthQuery userAuth)
+        string ITokenService.CreateJwtSecurityToken(string AuthToken)
         {
             string Name = "Rohit";
             string Role = "User"; //Get Roles from DB
             var authClaims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier, userAuth.Email),
+                    //new Claim(ClaimTypes.NameIdentifier, userAuth.Email),
+                    new Claim(ClaimTypes.NameIdentifier, AuthToken),
                     new Claim(ClaimTypes.Name, Name),
                     new Claim(ClaimTypes.Role, Role),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
