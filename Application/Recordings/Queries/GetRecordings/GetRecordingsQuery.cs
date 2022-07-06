@@ -23,7 +23,7 @@ namespace Application.Recordings.Queries.GetRecordings
     public class GetRecordingsQuery : IRequest<ConversationRecordingViewModel>
     {
         public int LeadTransitId { get; set; }
-        public int EnvironmentId { get; }
+        public int EnvironmentId { get;}
         public string AuthToken { get; set; }
     }
     public class GetRecordingsQueryHandler : IRequestHandler<GetRecordingsQuery, ConversationRecordingViewModel>
