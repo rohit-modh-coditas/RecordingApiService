@@ -41,11 +41,11 @@ namespace Application
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
 
-            services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = "localhost:6379";
+            //services.AddStackExchangeRedisCache(options =>
+            //{
+            //    options.Configuration = "localhost:6379";
 
-            });
+            //});
             // services.AddSingleton<IConnectionMultiplexer>(x =>
             //ConnectionMultiplexer.Connect(Configuration.GetValue<string>("RedisConnection")));
 

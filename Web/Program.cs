@@ -69,7 +69,7 @@ namespace Web
         }
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-               .ConfigureAppConfiguration((_, config) => config.AddGoogleSecretsManager())
+               //.ConfigureAppConfiguration((_, config) => config.AddGoogleSecretsManager())
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
