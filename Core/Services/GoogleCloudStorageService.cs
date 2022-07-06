@@ -31,15 +31,15 @@ namespace Core.Services
         }
         public static void Login()
         {
-            
+
             //using (var dbContext = new CastanetEntities())
             //{
             //    googleAuthFilePath = dbContext.LightningParameters.FirstOrDefault(x => x.Name == "GoogleAuthFilePath").Value;
             //    _bucketName = dbContext.LightningParameters.FirstOrDefault(x => x.Name == "GCSBucketName").Value;
             //}
             //fetch from appSettings
-          
-            _googleCredential = GoogleCredential.FromFile(_googleAuthFilePath);//.GetApplicationDefault();
+
+            _googleCredential = GoogleCredential.GetApplicationDefault();//.FromFile(_googleAuthFilePath);//.GetApplicationDefault();
             _storageClient = StorageClient.Create(_googleCredential);
         }
 

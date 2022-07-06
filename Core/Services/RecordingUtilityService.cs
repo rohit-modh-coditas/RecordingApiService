@@ -75,8 +75,6 @@ namespace Core.Services
 
             try
             {
-                uploadFiletoFTP(recordSavePath, _config);
-
                 dateTime.StartTime = TimeZoneInfo.ConvertTimeFromUtc(dateTime.StartTime, dateTime.LocalTimeZone);
                 dateTime.StartTime = dateTime.StartTime.AddSeconds(TimeShift);
 
@@ -154,23 +152,45 @@ namespace Core.Services
                 string ftpUserName = "";
                 string ftpPassword = "";
 
-                string filename = "81413021" + (".wav");
+                string filename = "183164928" + (".wav");
                 string path = "D:\\Recordings\\";
                 string host = "ftp://10.40.22.16/";
                 string url = host + "\\" + path;
-                string ftpPath = host + "/" + filename;
+                string ftpPath = @"\\PROD-CONTENT\Recordings";
 
                 String uploadUrl = String.Format("{0}/{1}/{2}", "ftp://10.40.22.16", "C:", "Recordings");
                 string user = @"sv5\Abhishek";
                 string pass = "Wor!d@15$h0ck!ng#";
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(host);
+                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
 
-                using (MyWebCient client = new MyWebCient(_config))
+                request.Credentials = new NetworkCredential(user.Normalize(), pass.Normalize());
+                var httpResponse = (HttpWebResponse)request.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
                 {
-                    client.Credentials = new NetworkCredential(user.Normalize(), pass.Normalize());
-                    client.Proxy = new WebProxy();
-                    client.UploadFile(host, WebRequestMethods.Ftp.UploadFile, recordSavePath);
-
+                    StringBuilder result = new StringBuilder();
+                    result.Append(streamReader.ReadToEnd());
+                    dynamic json = JsonConvert.DeserializeObject(result.ToString());
                 }
+                //    using (MyWebCient client = new MyWebCient(_config))
+                //{
+                //    FtpWebRequest request = (FtpWebRequest)WebRequest.Create(host);
+                //    request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+
+                //    request.Credentials = new NetworkCredential(user.Normalize(), pass.Normalize());
+                //    client.Proxy = new WebProxy();
+                //    //client.UploadFile(uploadUrl, WebRequestMethods.Ftp.UploadFile, recordSavePath);
+                //    FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+                //    Stream responseStream = response.GetResponseStream();
+                //    StreamReader reader = new StreamReader(responseStream);
+                //    Console.WriteLine(reader.ReadToEnd());
+
+                //    Console.WriteLine($"Directory List Complete, status {response.StatusDescription}");
+
+                //    reader.Close();
+                //    response.Close();
+                //}
             }
            
             catch (Exception e)
