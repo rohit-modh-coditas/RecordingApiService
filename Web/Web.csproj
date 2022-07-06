@@ -6,6 +6,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <UserSecretsId>eb988640-f1d4-4330-b1b8-d1ef6be62fb6</UserSecretsId>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>

@@ -31,29 +31,15 @@ namespace Core.Services
         }
         public static void Login()
         {
-
-            //using (var dbContext = new CastanetEntities())
-            //{
-            //    googleAuthFilePath = dbContext.LightningParameters.FirstOrDefault(x => x.Name == "GoogleAuthFilePath").Value;
-            //    _bucketName = dbContext.LightningParameters.FirstOrDefault(x => x.Name == "GCSBucketName").Value;
-            //}
-            //fetch from appSettings
-
-            _googleCredential = GoogleCredential.GetApplicationDefault();//.FromFile(_googleAuthFilePath);//.GetApplicationDefault();
-            _storageClient = StorageClient.Create(_googleCredential);
-        }
-
-        public static void UploadAllRecording(string key, string googleAuthFilePath,string bucket, string recordingBasePath)
-        {
-            _googleAuthFilePath = googleAuthFilePath;
-            _bucketName = bucket;
-            DirectoryInfo dir = new DirectoryInfo(recordingBasePath);
-            FileInfo[] files = dir.GetFiles("*.wav");
-            foreach (var file in files)
+            if (_environment.Equals("Development")) //this is only For testing locally
             {
-                string fileName = file.Name;
-                UploadRecording(key + fileName, recordingBasePath + fileName);
+                _googleCredential = GoogleCredential.FromFile(_googleAuthFilePath);//.GetApplicationDefault();
             }
+            else
+            {
+                _googleCredential = GoogleCredential.GetApplicationDefault();
+            }
+            _storageClient = StorageClient.Create(_googleCredential);
         }
         public static void UploadRecording(string key, string fileName)
         {
@@ -67,6 +53,19 @@ namespace Core.Services
             }
         }
 
+        public static void UploadAllRecording(string key, string googleAuthFilePath,string bucket, string recordingBasePath)
+        {
+            _googleAuthFilePath = googleAuthFilePath;
+            _bucketName = bucket;
+            DirectoryInfo dir = new DirectoryInfo(recordingBasePath);
+            FileInfo[] files = dir.GetFiles("*.wav"); //change to mp3
+            foreach (var file in files)
+            {
+                string fileName = file.Name;
+                UploadRecording(key + fileName, recordingBasePath + fileName);
+            }
+        }
+       
         public static void DownloadRecording(string key, string fileName)
         {
             if (_storageClient == null)
@@ -79,37 +78,10 @@ namespace Core.Services
             }
         }
 
-        public static bool GetObject(string key)
-        {
-            try
-            {
-                if (_storageClient == null)
-                {
-                    Login();
-                }
-
-                var obj = _storageClient.GetObject(_bucketName, key);
-                if (obj != null)
-                    return true;
-                else
-                    return false;
-            }
-            catch (Exception e)
-            {
-                //Logger.Info("Exception in GetObject in GoogleCloudStorageHelper : \n Message : " + e.Message + " \n StackTrace: " + e.StackTrace);
-            }
-            return false;
-        }
-
         public string getSecret(string key)
         {
             StringBuilder payload = new StringBuilder();
-            //_projectId = "recordinservice";
-            
-            //GoogleProject.GetProjectId();
-           
-            //@"C:\GoogleAuthFile\cas-prod-env-20199499a56a.json"
-            if (_environment.Equals("Development"))
+            if (_environment.Equals("Development")) //this is only For testing locally
             {
                 _projectId = "cas-prod-env";
                 _googleAuthFilePath = _configuration["GoogleAuthFilePath"];
@@ -119,19 +91,18 @@ namespace Core.Services
                     JsonCredentials = text,
                 };
                 _client = secretManagerServiceClientBuilder.Build();
-                SecretVersionName secretVersionName = new SecretVersionName(_projectId, key, "1");
-                // Call the API.
-                AccessSecretVersionResponse result = _client.AccessSecretVersion(secretVersionName);
-
-                // Convert the payload to a string. Payloads are bytes by default.
-                 payload.Append(result.Payload.Data.ToStringUtf8());
             }
             else
             {
                 _client = SecretManagerServiceClient.Create();
                 _projectId = GoogleProject.GetProjectId();
-            }   
-            // 
+            }
+            SecretVersionName secretVersionName = new SecretVersionName(_projectId, key, "1");
+            // Call the API.
+            AccessSecretVersionResponse result = _client.AccessSecretVersion(secretVersionName);
+            // Convert the payload to a string. Payloads are bytes by default.
+            payload.Append(result.Payload.Data.ToStringUtf8());
+
             return payload.ToString();
         }
     }

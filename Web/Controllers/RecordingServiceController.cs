@@ -1,4 +1,5 @@
 ﻿
+using Application.Common.Models;
 using Application.Recordings.Queries.GetRecordings;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -18,15 +19,23 @@ namespace Web.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    public class RecordingController : ApiControllerBase
+    public class RecordingServiceController : ApiControllerBase
     {
-        // GET: api/<RecordingController>
-        [HttpGet]
-        public async Task<ConversationRecordingViewModel> fetchRecordingAsync([FromQuery] GetRecordingsQuery query)
+        // POST api/<RecordingController>
+        
+        [HttpPost(Name ="ProcessRecordings")]
+        public async Task<Result> Post([FromQuery] GetRecordingsQuery query)
         {
 
-            return await Mediator.Send(query);
+           return await Mediator.Send(query);
         }
+        // GET: api/<RecordingController>
+        //[HttpGet]
+        //public async Task<ConversationRecordingViewModel> fetchRecordingAsync([FromQuery] GetRecordingsQuery query)
+        //{
+
+        //    return await Mediator.Send(query);
+        //}
 
         //[HttpGet]
         //public async Task<ActionResult<RecordingListVm>> Get()
@@ -56,10 +65,10 @@ namespace Web.Controllers
         //}
 
         // POST api/<RecordingController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+        //[HttpPost]
+        //public void Post([FromBody] string value)
+        //{
+        //}
 
         // PUT api/<RecordingController>/5
         [HttpPut("{id}")]

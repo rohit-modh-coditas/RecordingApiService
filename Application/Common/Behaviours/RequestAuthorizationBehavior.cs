@@ -27,29 +27,13 @@ namespace Application.Common.Behaviours
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            bool Authenticated = false;
-            
             foreach (var authorizer in _authorizers)
             {
                 var result = await authorizer.AuthorizeAsync(request, cancellationToken);
-                //var result = await authorizer.AuthorizeAsync();
                 if (!result.IsAuthorized)
                     throw new UnAuthorizedAccessException(result.FailureMessage);
-                else { Authenticated = true; }
             }
-
             var response = next();
-            //var ex = response.Exception;
-           
-            //if (Authenticated)
-            //{
-            //    var userId = _currentUserService.UserId ?? string.Empty;
-            //    bool inRole = _currentUserService.ClaimsPrincipal.IsInRole("Admin");
-            //    if (!inRole)
-            //    {
-            //        throw new UnAuthorizedAccessException("Restricted access..");
-            //    }
-            //}
             return await response;
         }
     }

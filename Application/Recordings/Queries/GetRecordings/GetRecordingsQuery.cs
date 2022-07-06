@@ -1,9 +1,11 @@
 ﻿using Application.Common.Exceptions;
 using Application.Common.Interfaces;
+using Application.Common.Models;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -20,13 +22,14 @@ using System.Threading.Tasks;
 
 namespace Application.Recordings.Queries.GetRecordings
 {
-    public class GetRecordingsQuery : IRequest<ConversationRecordingViewModel>
+    public class GetRecordingsQuery : IRequest<Result>
     {
+        public HttpContext context { get; set; }
         public int LeadTransitId { get; set; }
         public int EnvironmentId { get;}
         public string AuthToken { get; set; }
     }
-    public class GetRecordingsQueryHandler : IRequestHandler<GetRecordingsQuery, ConversationRecordingViewModel>
+    public class GetRecordingsQueryHandler : IRequestHandler<GetRecordingsQuery, Result>
     {
         private readonly I10XStagingDbContext _StagingDbContext;
         private readonly ICommonFunctions _CommonFunctions;
@@ -61,12 +64,17 @@ namespace Application.Recordings.Queries.GetRecordings
         public string RecordingBasePath { get; set; }
         public string RecordSavePath { get; set; }
 
-        public async Task<ConversationRecordingViewModel> Handle(GetRecordingsQuery request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(GetRecordingsQuery request, CancellationToken cancellationToken)
+        {
+            //dowork(request, cancellationToken);
+            return Result.Success();
+
+        }
+        public async Task<Result> Dowork(GetRecordingsQuery request, CancellationToken cancellationToken)
         {
             //var cacheKey = "callRecording";
             //string serializedCustomerList;
-            int primaryNumberIndex = 0;
-
+            
             //var redisRecordingList = await _distributedCache.GetAsync(cacheKey);
             //if (redisRecordingList != null)
             //{
@@ -89,12 +97,13 @@ namespace Application.Recordings.Queries.GetRecordings
                 //log not found or exception
                 throw new NotFoundException("No Record found with leadId" + request.LeadTransitId);
             }
+            int primaryNumberIndex = 0;
+            string called1, called2, called3;
 
             var recordingConversationInfo = await recordingQuery.ToListAsync(cancellationToken);
             _dateTime.CreateDate = recordingConversationInfo.Select(x => x.createDate).FirstOrDefault();
 
-            //PERFORM SFTP CHECK - move to common or recording utility
-            //to access recording via sftp, add leadtransitid
+            //PERFORM SFTP CHECK - to access recording via sftp, add leadtransitid
             StringBuilder sftpRecordingSpecific = new StringBuilder();
             sftpRecordingSpecific.Append(_config.GetValue<string>("SFTPRecordingSpecific"));
 
@@ -139,6 +148,7 @@ namespace Application.Recordings.Queries.GetRecordings
                 }
             }
             _CompanyName = recordingConversationInfo[0].companyName;
+            
             // check if disabledCompany
             //var isDisabled = (from c in _StagingDbContext.Companies
             //                  join cs in _StagingDbContext.CasCompanySettings on c.Id equals cs.CompanyId
@@ -150,7 +160,7 @@ namespace Application.Recordings.Queries.GetRecordings
             //{
             //    throw new ForbiddenAccessException("Company disabled for downloading the recording.");
             //}
-            string called1, called2, called3;
+            
             if (primaryNumberIndex == 1)
             {
                 called1 = recordingConversationInfo[0].ContactTel2;
@@ -170,17 +180,17 @@ namespace Application.Recordings.Queries.GetRecordings
                 called3 = recordingConversationInfo[0].ContactTel3;
             }
 
-
             if (string.IsNullOrEmpty(called1) && string.IsNullOrEmpty(called2) && string.IsNullOrEmpty(called3))
             {
                 throw new NotFoundException("Phone number not found for LeadTransitId: " + request.LeadTransitId);
             }
 
-            //string areaPhoneCodesJsonStr = _config.GetValue<string>("RecordingsAreaPhoneCodeMapPath").ToString();
-            //string text = File.ReadAllText(areaPhoneCodesJsonStr);
-            //Dictionary<string, string> areaPhoneCodesDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
+            StringBuilder areaPhoneCodesDictJson = new StringBuilder();
+            areaPhoneCodesDictJson.Append(_config.GetValue<string>("recordingsareaphonecodemappath"));
+            string text = File.ReadAllText(areaPhoneCodesDictJson.ToString());
+            Dictionary<string, string> areaPhoneCodesDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
 
-            //bool isDualConsentRecording = _CommonFunctions.IsDualConsentRecording(!string.IsNullOrEmpty(called1) ? called1 : !string.IsNullOrEmpty(called2) ? called2 : called3, areaPhoneCodesDict);
+            bool isDualConsentRecording = _CommonFunctions.IsDualConsentRecording(!string.IsNullOrEmpty(called1) ? called1 : !string.IsNullOrEmpty(called2) ? called2 : called3, areaPhoneCodesDict);
 
             RecordingCorePath = _config.GetValue<string>("RecordingsBasePath");
             RecordingBasePath = RecordingCorePath + _dateTime.CreateDate.Year.ToString() +
@@ -199,7 +209,7 @@ namespace Application.Recordings.Queries.GetRecordings
 
             if (File.Exists(wavFileName.ToString()) || File.Exists(mp3FileName.ToString()))
             {
-                throw new FileAlreadyExistException("Recording already exists");
+                throw new FileAlreadyExistException("Recording file already exists.");
             }
             var time = await _StagingDbContext.CasLightningParameters.
                              Where(x => x.Name.Equals(LightningParameterType.CallRecordingTimeBuffer.ToString()) ||
@@ -207,24 +217,15 @@ namespace Application.Recordings.Queries.GetRecordings
 
             int timeBuffer = Int32.Parse(time[0].Value);
             int timeShift = Int32.Parse(time[1].Value);
-
-            //bool tempResult = _utilityService.FetchCdrRecording(_dateTime, _config, called1, called2, called3, request.LeadTransitId, RecordSavePath, timeBuffer, timeShift);
-            //if (tempResult)
-            //{
-            //    //Execute python script to convert wav to mp3
-            //    _utilityService.ConvertToMP3Recording(RecordSavePath);
-            //    //_utilityService.MoveRecordingToGCS(RecordingBasePath, _config);
-            //}
-
+            var errors = new List<string>();
             bool tempResult = _utilityService.FetchCdrRecording(_dateTime, _config, called1, called2, called3, request.LeadTransitId, RecordSavePath, timeBuffer, timeShift);
-            // bool tempResult = _utilityService.FetchCdrRecording(_dateTime, _config, called1, called2, called3, request.LeadTransitId, RecordingCorePath, timeBuffer, timeShift);
             if (tempResult)
             {
+                Result.Failure( new List<string> { "cannot convert to mp3" });
                 //Execute python script to convert wav to mp3
-
+                _utilityService.ConvertToMP3Recording(RecordSavePath);
                 _utilityService.MoveRecordingToGCS(RecordingBasePath, _config);
             }
-            //                _utilityService.uploadFiletoFTP(RecordingBasePath + "\\" + "81413021" + ".wav");
 
             //serializedCustomerList = JsonConvert.SerializeObject(recordingConversationInfo);
             //redisRecordingList = Encoding.UTF8.GetBytes(serializedCustomerList);
@@ -236,12 +237,7 @@ namespace Application.Recordings.Queries.GetRecordings
             // send email
             // _EmailService.SendEmail();
 
-            if (recordingConversationInfo == null)
-            {
-                throw new NotFoundException("Call Recording", request.LeadTransitId);
-            }
-            return recordingQuery.SingleOrDefault();
-
+            return Result.Success();
         }
     }
 }

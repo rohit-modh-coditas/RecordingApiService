@@ -24,6 +24,8 @@ namespace Web.Filters
                 { typeof(NotFoundException), HandleNotFoundException },
                 { typeof(UnAuthorizedAccessException), UnAuthorizedAccessException },
                 { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
+                { typeof(RecordingFailureException), HandleRecordingFailureException },
+                { typeof(FileAlreadyExistException), HandleFileAlreadyExistException }
             };
         }
 
@@ -116,7 +118,39 @@ namespace Web.Filters
             var details = new ProblemDetails
             {
                 Status = StatusCodes.Status403Forbidden,
-                Title = "Forbidden",
+                Title = context.Exception.Message,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
+            };
+
+            context.Result = new ObjectResult(details)
+            {
+                StatusCode = StatusCodes.Status403Forbidden
+            };
+
+            context.ExceptionHandled = true;
+        }
+        private void HandleRecordingFailureException(ExceptionContext context)
+        {
+            var details = new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = context.Exception.Message,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
+            };
+
+            context.Result = new ObjectResult(details)
+            {
+                StatusCode = StatusCodes.Status403Forbidden
+            };
+
+            context.ExceptionHandled = true;
+        }
+        private void HandleFileAlreadyExistException(ExceptionContext context)
+        {
+            var details = new ProblemDetails
+            {
+                Status = StatusCodes.Status409Conflict,
+                Title = context.Exception.Message,
                 Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
             };
 

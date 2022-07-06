@@ -12,7 +12,6 @@ using System.Net;
 using System.Text;
 using NAudio.Lame;
 using NAudio.Wave;
-using System.IO;
 
 namespace Core.Services
 {
@@ -20,7 +19,6 @@ namespace Core.Services
     {
         public static void getCallableNumber(this string callNumber, ref List<string> CallableNumbers)
         {
-            //CallableNumbers = new List<string>();
             if (!string.IsNullOrEmpty(callNumber))
             {
                 callNumber = callNumber.Replace("+", "").Trim();
@@ -28,7 +26,7 @@ namespace Core.Services
                 {
                     CallableNumbers.Add(string.Concat("011", callNumber));//011 is the phone exit code 
                     CallableNumbers.Add(string.Concat("1", callNumber));//1 is the local code
-                    /*a number cud belong to US 48 states or Canada. These numbers are dailed with a prefix of 1 and 
+                    /*a number could belong to US 48 states or Canada. These numbers are dailed with a prefix of 1 and 
                     no exitcode of 011 is required.*/
                 }
                 else
@@ -36,7 +34,6 @@ namespace Core.Services
                     CallableNumbers.Add(callNumber);
                 }
             }
-            //return callableNumbers;
         }
         public static string Get(this Dictionary<string, string> map, string key)
         {
@@ -72,7 +69,6 @@ namespace Core.Services
 
         public bool FetchCdrRecording(IDateTime dateTime, IConfiguration _config, string called1, string called2, string called3, int LeadTransitId, string recordSavePath, int TimeBuffer, int TimeShift)
         {
-
             try
             {
                 dateTime.StartTime = TimeZoneInfo.ConvertTimeFromUtc(dateTime.StartTime, dateTime.LocalTimeZone);
@@ -80,8 +76,7 @@ namespace Core.Services
 
                 DateTime startTime = dateTime.StartTime.AddSeconds(-TimeBuffer);
                 DateTime startTimeTo = dateTime.StartTime.AddSeconds(TimeBuffer);
-                //dateTime.StartTime = dateTime.StartTime.AddSeconds(-TimeBuffer);
-                //dateTime.StartTime = dateTime.StartTime.AddSeconds(TimeBuffer);
+                
                 string queryStartTime = String.Format("{0:yyyy-MM-dd HH:mm:ss}", startTime);
                 string queryStartTimeTo = String.Format("{0:yyyy-MM-dd HH:mm:ss}", startTimeTo);
                 List<string> callableNumbers = new List<string>();
@@ -121,19 +116,12 @@ namespace Core.Services
                                 }
                                 StringBuilder recordingUrl = new StringBuilder();
                                 recordingUrl.Append(_config.GetValue<string>("RecordingsServerBasePath").ToString() + "api.php?task=getVoiceRecording&user=" + Constants.CdrLoginCredentials.Get("UserName") + "&password=" + Constants.CdrLoginCredentials.Get("Password") + "&params={\"cdrId\":\"" + cdrId + "\"}");
-                               
-                                
-                              
                                 using (MyWebCient client = new MyWebCient(_config))
                                 {
                                     client.DownloadFile(recordingUrl.ToString(), recordSavePath);
                                     return true;
                                 }
                             }
-                            //else
-                            //{
-                            //    throw new RecordingFailureException("Json Failure: " + json.error != null ? json.error.ToString() : json.ToString());
-                            //}
                         }
                     }
                 }
@@ -142,65 +130,9 @@ namespace Core.Services
             {
                 throw new RecordingFailureException("Error Fetching recording from CDR - " + e);
             }
-
-            return true;
+            return false;
         }
-        public void uploadFiletoFTP(string recordSavePath, IConfiguration _config)
-        {
-            try
-            {
-                string ftpUserName = "";
-                string ftpPassword = "";
-
-                string filename = "183164928" + (".wav");
-                string path = "D:\\Recordings\\";
-                string host = "ftp://10.40.22.16/";
-                string url = host + "\\" + path;
-                string ftpPath = @"\\PROD-CONTENT\Recordings";
-
-                String uploadUrl = String.Format("{0}/{1}/{2}", "ftp://10.40.22.16", "C:", "Recordings");
-                string user = @"sv5\Abhishek";
-                string pass = "Wor!d@15$h0ck!ng#";
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(host);
-                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
-
-                request.Credentials = new NetworkCredential(user.Normalize(), pass.Normalize());
-                var httpResponse = (HttpWebResponse)request.GetResponse();
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    StringBuilder result = new StringBuilder();
-                    result.Append(streamReader.ReadToEnd());
-                    dynamic json = JsonConvert.DeserializeObject(result.ToString());
-                }
-                //    using (MyWebCient client = new MyWebCient(_config))
-                //{
-                //    FtpWebRequest request = (FtpWebRequest)WebRequest.Create(host);
-                //    request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
-
-                //    request.Credentials = new NetworkCredential(user.Normalize(), pass.Normalize());
-                //    client.Proxy = new WebProxy();
-                //    //client.UploadFile(uploadUrl, WebRequestMethods.Ftp.UploadFile, recordSavePath);
-                //    FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-
-                //    Stream responseStream = response.GetResponseStream();
-                //    StreamReader reader = new StreamReader(responseStream);
-                //    Console.WriteLine(reader.ReadToEnd());
-
-                //    Console.WriteLine($"Directory List Complete, status {response.StatusDescription}");
-
-                //    reader.Close();
-                //    response.Close();
-                //}
-            }
-           
-            catch (Exception e)
-            {
-                throw new RecordingFailureException("Error Fetching recording from CDR - " + e);
-            }
-
-
-        }
-
+        
         public void MoveRecordingToGCS(string recordingBasePath, IConfiguration _config)
         {
             recordingBasePath += "\\";

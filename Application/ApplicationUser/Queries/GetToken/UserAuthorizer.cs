@@ -14,7 +14,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Application.ApplicationUser.Queries.GetToken
 {
-    class UserAuthorizer:IAuthorizer<GetRecordingListQuery>
+    class UserAuthorizer:IAuthorizer<GetRecordingsQuery>
     {
         private readonly ITokenService _tokenService;
         private readonly IGoogleCloudStorageService _gcpService;
@@ -55,18 +55,11 @@ namespace Application.ApplicationUser.Queries.GetToken
         //    throw new NotImplementedException();
         //}
 
-        public Task<AuthorizationResult> AuthorizeAsync(GetRecordingListQuery instance, CancellationToken cancellation = default)
+        public Task<AuthorizationResult> AuthorizeAsync(GetRecordingsQuery instance, CancellationToken cancellation = default)
         {
-            //if (!string.IsNullOrEmpty(instance.context))
-            //{
-            //    //get token
-          //      string token = _tokenService.CreateJwtSecurityToken(instance.AuthToken);
-            //    return Task.Run(() => AuthorizationResult.Succeed(token));
-            //}
-
+            
             if (instance.context.Request.Headers.TryGetValue("Auth-Key", out var extractkey))
             {
-
                 // string token =  new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Auth:Secret"]));
                 string payLoad = _gcpService.getSecret("RecordingAPISecret");
                 if (!payLoad.Equals(extractkey))
