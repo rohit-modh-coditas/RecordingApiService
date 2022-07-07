@@ -27,5 +27,6 @@ namespace Web.Services
         public string UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
         public ClaimsPrincipal ClaimsPrincipal => _httpContextAccessor.HttpContext?.User;
+        public string AuthKey => _httpContextAccessor.HttpContext.Request.Headers.Where(x=>x.Key.Equals("AuthKey")).Select(x=>x.Value).FirstOrDefault();
     }
 }

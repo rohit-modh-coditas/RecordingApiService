@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Application.Common.Behaviours;
 using FluentValidation;
 using MediatR.Pipeline;
-using Application.ApplicationUser.Queries.GetToken;
+using Application.ApplicationUser.Queries.UserAuth;
 using Application.Common.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -18,6 +18,7 @@ using Application.Common.Interfaces;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using StackExchange.Redis;
+using Application.Recordings.Queries.GetRecordings;
 
 namespace Application
 {
@@ -33,12 +34,10 @@ namespace Application
 
            
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestAuthorizationBehavior<,>));
-            services.AddAuthorizersFromAssembly(Assembly.GetAssembly(typeof(UserAuthQuery)));
-            //services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>));
+            services.AddAuthorizersFromAssembly(Assembly.GetAssembly(typeof(GetRecordingsQuery)));
+
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
-           // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
-            // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
 
             //services.AddStackExchangeRedisCache(options =>

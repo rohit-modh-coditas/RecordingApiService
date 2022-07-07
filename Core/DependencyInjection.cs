@@ -1,5 +1,4 @@
 ﻿using Application.Common.Interfaces;
-using Core.Identity;
 using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,8 +18,7 @@ namespace Core
         {
             if (configuration.GetValue<bool>("UseInMemoryDatabase"))
             {
-                services.AddDbContext<StoreDBContext>(options =>
-                    options.UseInMemoryDatabase("CleanArchitectureDb"));
+                
             }
             else
             {
@@ -28,41 +26,23 @@ namespace Core
                  options.UseSqlServer(
                      configuration.GetConnectionString("10xStaging"),
                      b => b.MigrationsAssembly(typeof(_10X_StagingContext).Assembly.FullName)));
-
-                services.AddDbContext<StoreDBContext>(options =>
-                    options.UseSqlServer(
-                        configuration.GetConnectionString("DefaultConnection"),
-                        b => b.MigrationsAssembly(typeof(StoreDBContext).Assembly.FullName)));
-
             }
             //For In-Memory Caching
             //services.AddMemoryCache();
             //For Redis Caching
-
-            //services.AddScoped<IStoreDBContext>(provider => provider.GetRequiredService<StoreDBContext>());
+            
             services.AddScoped<I10XStagingDbContext>(provider => provider.GetRequiredService<_10X_StagingContext>());
 
-            services.AddScoped<IStoreDbContext>(provider => provider.GetRequiredService<StoreDBContext>());
-
             services.AddScoped<IDomainEventService, DomainEventService>();
-
-            //services
-            //          .AddDefaultIdentity<ApplicationUser>()
-            //          .AddRoles<IdentityRole>()
-            //          .AddEntityFrameworkStores<StoreDBContext>();
-
-            //services.AddIdentityServer()
-            //    .AddApiAuthorization<ApplicationUser, StoreDBContext>();
             services.AddTransient<INotificationService, NotificationService>();
             services.AddTransient<IDateTime, DateTimeService>();
             services.AddTransient<IRecordingUtilityService, RecordingUtilityService>();
             services.AddTransient<IAppSettings, AppSettingService>();
             services.AddTransient<ICommonFunctions, CommonFunctions>();
-            // services.AddTransient<IIdentityService, IdentityService>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IEmailService, EmailService>();
             services.AddTransient<IGoogleCloudStorageService, GoogleCloudStorageService>();
-
+          
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -82,8 +62,6 @@ namespace Core
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
                     };
                 });
-
-
             return services;
         }
     }

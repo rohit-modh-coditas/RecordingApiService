@@ -10,6 +10,7 @@ namespace Application.Common.Interfaces
 {
     public interface IAuthorizer<T>
     {
-        Task<AuthorizationResult> AuthorizeAsync(T instance, CancellationToken cancellation = default);
+        Task<AuthorizationResult> AuthorizeAsync(T instance,string token, CancellationToken cancellation = default);
+        //Task<AuthorizationResult> AuthorizeAsync(T instance, CancellationToken cancellation = default);
     }
 }

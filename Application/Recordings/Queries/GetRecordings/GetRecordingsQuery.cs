@@ -25,8 +25,6 @@ namespace Application.Recordings.Queries.GetRecordings
 {
     public class GetRecordingsQuery : IRequest<Result>
     {
-        [FromHeader]
-        public HttpContext context { get; set; }
         public int LeadTransitId { get; set; }
         public int EnvironmentId { get;}
     }

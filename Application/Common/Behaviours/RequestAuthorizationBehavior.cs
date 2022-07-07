@@ -27,9 +27,10 @@ namespace Application.Common.Behaviours
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
+            
             foreach (var authorizer in _authorizers)
             {
-                var result = await authorizer.AuthorizeAsync(request, cancellationToken);
+                var result = await authorizer.AuthorizeAsync(request, _currentUserService.AuthKey, cancellationToken);
                 if (!result.IsAuthorized)
                     throw new UnAuthorizedAccessException(result.FailureMessage);
             }

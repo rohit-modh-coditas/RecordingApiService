@@ -43,7 +43,7 @@ namespace Web
             services.AddHttpContextAccessor();
 
             services.AddHealthChecks()
-                .AddDbContextCheck<StoreDBContext>();
+                .AddDbContextCheck<_10X_StagingContext>();
             services.AddMvc();
             services.AddControllers();
             services.AddControllersWithViews(options =>

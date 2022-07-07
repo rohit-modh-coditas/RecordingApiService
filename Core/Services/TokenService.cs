@@ -1,4 +1,4 @@
-﻿using Application.ApplicationUser.Queries.GetToken;
+﻿using Application.ApplicationUser.Queries.UserAuth;
 using Application.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;

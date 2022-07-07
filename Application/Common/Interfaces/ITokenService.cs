@@ -1,4 +1,4 @@
-﻿using Application.ApplicationUser.Queries.GetToken;
+﻿using Application.ApplicationUser.Queries.UserAuth;
 using System;
 using System.Collections.Generic;
 using System.Linq;

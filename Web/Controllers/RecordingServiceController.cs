@@ -24,16 +24,9 @@ namespace Web.Controllers
         // POST api/<RecordingController>
         
         [HttpPost(Name ="ProcessRecordings")]
-        public async Task<Result> Post([FromQuery] GetRecordingsQuery query)//, [FromHeader] string AuthKey
+        public async Task<Result> Post([FromQuery] GetRecordingsQuery query)
         {
-           return await Mediator.Send(new GetRecordingsQuery { LeadTransitId = query.LeadTransitId, context = this.HttpContext});
-        }
-        
-        [Route("GetAllRecordings")]
-        [HttpGet]
-        public async Task<ActionResult<RecordingListVm>> GetAll()
-        {
-            return Ok(await Mediator.Send(new GetRecordingListQuery { context = this.HttpContext }));
+           return await Mediator.Send(new GetRecordingsQuery { LeadTransitId = query.LeadTransitId });
         }
     }
 }

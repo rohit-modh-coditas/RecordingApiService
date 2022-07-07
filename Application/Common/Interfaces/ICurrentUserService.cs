@@ -11,6 +11,7 @@ namespace Application.Common.Interfaces
     {
         string? UserId { get; }
         ClaimsPrincipal? ClaimsPrincipal { get; }
+       string ? AuthKey{ get; }
     }
 
 }
