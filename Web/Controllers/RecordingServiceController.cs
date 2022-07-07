@@ -24,62 +24,16 @@ namespace Web.Controllers
         // POST api/<RecordingController>
         
         [HttpPost(Name ="ProcessRecordings")]
-        public async Task<Result> Post([FromQuery] GetRecordingsQuery query)
+        public async Task<Result> Post([FromQuery] GetRecordingsQuery query)//, [FromHeader] string AuthKey
         {
-
-           return await Mediator.Send(query);
+           return await Mediator.Send(new GetRecordingsQuery { LeadTransitId = query.LeadTransitId, context = this.HttpContext});
         }
-        // GET: api/<RecordingController>
-        //[HttpGet]
-        //public async Task<ConversationRecordingViewModel> fetchRecordingAsync([FromQuery] GetRecordingsQuery query)
-        //{
-
-        //    return await Mediator.Send(query);
-        //}
-
-        //[HttpGet]
-        //public async Task<ActionResult<RecordingListVm>> Get()
-        //{
-        //    return await Mediator.Send(new GetRecordingListQuery());
-        //}
         
         [Route("GetAllRecordings")]
         [HttpGet]
         public async Task<ActionResult<RecordingListVm>> GetAll()
         {
             return Ok(await Mediator.Send(new GetRecordingListQuery { context = this.HttpContext }));
-        }
-
-        //[HttpGet]
-        //public async Task<IEnumerable<ConversationRecordingViewModel>> RecordingList()
-        //{
-
-        //    return await Mediator.Send(new GetRecordingListQuery());
-        //}
-
-        // GET api/<RecordingController>/5
-        //[HttpGet("{id}")]
-        //public string Get(int id)
-        //{
-        //    return "value";
-        //}
-
-        // POST api/<RecordingController>
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
-
-        // PUT api/<RecordingController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<RecordingController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

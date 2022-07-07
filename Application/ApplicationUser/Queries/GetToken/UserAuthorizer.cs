@@ -20,9 +20,11 @@ namespace Application.ApplicationUser.Queries.GetToken
         private readonly IGoogleCloudStorageService _gcpService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IConfiguration _configuration;
+        //private readonly IHeaderDictionary _pairs;
 
-        public UserAuthorizer(ITokenService tokenService, IConfiguration configuration, ICurrentUserService currentUserService, IGoogleCloudStorageService gcpService)
+        public UserAuthorizer(ITokenService tokenService, IConfiguration configuration,  ICurrentUserService currentUserService, IGoogleCloudStorageService gcpService)
         {
+           // _pairs = pairs;
             _gcpService = gcpService;
             _tokenService = tokenService;
             _currentUserService = currentUserService;
@@ -57,12 +59,11 @@ namespace Application.ApplicationUser.Queries.GetToken
 
         public Task<AuthorizationResult> AuthorizeAsync(GetRecordingsQuery instance, CancellationToken cancellation = default)
         {
-            
-            if (instance.context.Request.Headers.TryGetValue("Auth-Key", out var extractkey))
+            if (instance.context.Request.Headers.TryGetValue("authkey", out var extractkey))
             {
-                // string token =  new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Auth:Secret"]));
-                string payLoad = _gcpService.getSecret("RecordingAPISecret");
-                if (!payLoad.Equals(extractkey))
+                // string token =  new symmetricsecuritykey(encoding.utf8.getbytes(_configuration["auth:secret"]));
+                string payload = _gcpService.getSecret("recordingapisecret");
+                if (!payload.Equals(extractkey))
                 {
                     return Task.Run(() => AuthorizationResult.Fail());
                 }

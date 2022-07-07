@@ -6,6 +6,7 @@ using AutoMapper.QueryableExtensions;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -24,10 +25,10 @@ namespace Application.Recordings.Queries.GetRecordings
 {
     public class GetRecordingsQuery : IRequest<Result>
     {
+        [FromHeader]
         public HttpContext context { get; set; }
         public int LeadTransitId { get; set; }
         public int EnvironmentId { get;}
-        public string AuthToken { get; set; }
     }
     public class GetRecordingsQueryHandler : IRequestHandler<GetRecordingsQuery, Result>
     {
@@ -66,15 +67,9 @@ namespace Application.Recordings.Queries.GetRecordings
 
         public async Task<Result> Handle(GetRecordingsQuery request, CancellationToken cancellationToken)
         {
-            //dowork(request, cancellationToken);
-            return Result.Success();
-
-        }
-        public async Task<Result> Dowork(GetRecordingsQuery request, CancellationToken cancellationToken)
-        {
             //var cacheKey = "callRecording";
             //string serializedCustomerList;
-            
+
             //var redisRecordingList = await _distributedCache.GetAsync(cacheKey);
             //if (redisRecordingList != null)
             //{
@@ -148,7 +143,7 @@ namespace Application.Recordings.Queries.GetRecordings
                 }
             }
             _CompanyName = recordingConversationInfo[0].companyName;
-            
+
             // check if disabledCompany
             //var isDisabled = (from c in _StagingDbContext.Companies
             //                  join cs in _StagingDbContext.CasCompanySettings on c.Id equals cs.CompanyId
@@ -160,7 +155,7 @@ namespace Application.Recordings.Queries.GetRecordings
             //{
             //    throw new ForbiddenAccessException("Company disabled for downloading the recording.");
             //}
-            
+
             if (primaryNumberIndex == 1)
             {
                 called1 = recordingConversationInfo[0].ContactTel2;
@@ -221,7 +216,7 @@ namespace Application.Recordings.Queries.GetRecordings
             bool tempResult = _utilityService.FetchCdrRecording(_dateTime, _config, called1, called2, called3, request.LeadTransitId, RecordSavePath, timeBuffer, timeShift);
             if (tempResult)
             {
-                Result.Failure( new List<string> { "cannot convert to mp3" });
+                Result.Failure(new List<string> { "cannot convert to mp3" });
                 //Execute python script to convert wav to mp3
                 _utilityService.ConvertToMP3Recording(RecordSavePath);
                 _utilityService.MoveRecordingToGCS(RecordingBasePath, _config);
